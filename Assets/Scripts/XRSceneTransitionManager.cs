@@ -84,10 +84,15 @@ public class XRSceneTransitionManager : MonoBehaviour
     IEnumerator Load(string scene)
     {
         isLoading = true;
-        //nesting coroutines 
+        //nesting coroutines
+
+
+        yield return StartCoroutine(Fade(1.0f));
         yield return StartCoroutine(UnloadCurrentScene());
 
         yield return StartCoroutine(LoadNewScene(scene));
+        yield return StartCoroutine(Fade(0.0f));
+
         isLoading = false;
 
 
@@ -140,5 +145,18 @@ public class XRSceneTransitionManager : MonoBehaviour
 
 
 
+    }
+
+    IEnumerator Fade(float target)
+    {
+        while(!Mathf.Approximately(currentTransitionAmount, target))
+        {
+            currentTransitionAmount = Mathf.MoveTowards(currentTransitionAmount, target, transitionSpeed *Time.deltaTime);
+            transitionMaterial.SetFloat("_FadeAmount", currentTransitionAmount);
+
+
+            yield return null; 
+        }
+        transitionMaterial.SetFloat("_FadeAmount", target);
     }
 }
